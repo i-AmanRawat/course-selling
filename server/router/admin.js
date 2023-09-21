@@ -7,6 +7,14 @@ const { authenticateJwt, SECREATKEY } = require("../middleware/auth");
 const router = express.Router();
 
 // Admin routes
+router.get("/me", authenticateJwt, async (req, res) => {
+  const admin = await Admin.findOne({ username: req.user.username });
+  if (!admin) {
+    res.status(403).json({ message: "Admin doesn't exist" });
+  }
+  res.json({ username: admin.username });
+});
+
 router.post("/signup", async (req, res) => {
   const { username, password } = req.body;
   const admin = await Admin.findOne({ username }); // just like .find() method of array
@@ -54,7 +62,7 @@ router.put("/courses/:courseId", authenticateJwt, async (req, res) => {
   }
 });
 
-router.get("/courses/:courseId", authenticateJwt, async (req, res) => {
+router.get("/course/:courseId", authenticateJwt, async (req, res) => {
   const course = await Course.findById(req.params.courseId);
   if (!course) {
     res.status(403).json({ message: "Course doesn't exist" });
