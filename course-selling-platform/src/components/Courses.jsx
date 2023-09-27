@@ -1,22 +1,28 @@
 import { Box, Typography, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/admin/courses/", {
-      method: "GET",
+  async function init() {
+    const token = localStorage.getItem("token");
+    const res = await axios({
+      method: "get",
+      url: "http://localhost:3000/admin/courses/",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: `Bearer ${token}`,
       },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setCourses(data.courses);
-      });
+    });
+    if (res.data) {
+      setCourses(res.data.courses);
+    }
+  }
+
+  useEffect(() => {
+    init();
   }, []);
 
   return (

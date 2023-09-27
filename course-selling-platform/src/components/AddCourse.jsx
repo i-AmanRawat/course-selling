@@ -1,11 +1,12 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
+import axios from "axios";
 import { useState } from "react";
 
 export default function AddCourse() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageLink, setImageLink] = useState("");
-  const [price, setPrice] = useState(2999);
+  const [price, setPrice] = useState(0);
 
   return (
     <div
@@ -79,26 +80,27 @@ export default function AddCourse() {
 
         <Button
           variant="contained"
-          onClick={() => {
-            fetch("http://localhost:3000/admin/courses", {
-              method: "POST",
+          onClick={async () => {
+            const token = localStorage.getItem("token");
+            const res = await axios({
+              method: "post",
+              url: "http://localhost:3000/admin/courses",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + localStorage.getItem("token"),
+                Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({
+              data: {
                 title,
                 description,
                 imageLink,
                 price,
                 published: true,
-              }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                alert("course added successfully");
-                console.log(data);
-              });
+              },
+            });
+            if (res.data) {
+              alert("course added successfully");
+              console.log(res.data);
+            }
           }}
         >
           ADD COURSE

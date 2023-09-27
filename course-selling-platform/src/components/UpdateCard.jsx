@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Typography, TextField, Card, Button } from "@mui/material";
+import axios from "axios";
 
 export default function UpdateCard({ course, setCourse }) {
   const [title, setTitle] = useState(course.title);
@@ -59,21 +60,24 @@ export default function UpdateCard({ course, setCourse }) {
 
           <Button
             variant="contained"
-            onClick={() => {
-              fetch("http://localhost:3000/admin/courses/" + course._id, {
-                method: "PUT",
+            onClick={async () => {
+              const token = localStorage.getItem("token");
+              axios({
+                url: "http://localhost:3000/admin/courses/" + course._id,
+                method: "put",
                 headers: {
                   "Content-type": "application/json",
-                  Authorization: "Bearer " + localStorage.getItem("token"),
+                  Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
+                data: {
                   title: title,
                   description: description,
                   imageLink: image,
                   published: true,
                   price,
-                }),
+                },
               });
+
               let updatedCourse = {
                 _id: course._id,
                 title: title,
