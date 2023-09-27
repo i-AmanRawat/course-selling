@@ -5,24 +5,29 @@ import { useParams } from "react-router-dom";
 
 import UpdateCard from "./UpdateCard";
 import CourseCard from "./CourseCard";
+import axios from "axios";
 
 export default function Course() {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/admin/course/" + courseId, {
-      method: "GET",
+  async function init() {
+    const token = localStorage.getItem("token");
+    const res = await axios({
+      method: "get",
+      url: "http://localhost:3000/admin/course/" + courseId,
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: `Bearer ${token}`,
       },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data.course);
-        setCourse(data.course);
-      });
+    });
+    if (res.data) {
+      setCourse(res.data.course);
+    }
+  }
+
+  useEffect(() => {
+    init();
   }, []);
 
   if (!course) {

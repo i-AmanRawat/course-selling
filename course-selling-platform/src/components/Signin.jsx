@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
+import axios from "axios";
 
 export default function Signin() {
   const [username, setUsername] = useState("");
@@ -62,21 +63,21 @@ export default function Signin() {
           <Button
             style={{ margin: "auto" }}
             variant="contained"
-            onClick={() => {
-              fetch("http://localhost:3000/admin/login", {
-                method: "POST",
+            onClick={async () => {
+              const res = await axios({
+                method: "post",
+                url: "http://localhost:3000/admin/login",
                 headers: {
                   username,
                   password,
                   "Content-Type": "application/json",
                 },
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  console.log(data);
-                  localStorage.setItem("token", data.token);
-                  window.location = "/";
-                });
+              });
+              if (res.data) {
+                console.log(res.data);
+                localStorage.setItem("token", res.data.token);
+                window.location = "/";
+              }
             }}
           >
             SIGN IN

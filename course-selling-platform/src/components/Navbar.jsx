@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Typography, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -5,21 +6,24 @@ import { useNavigate } from "react-router-dom";
 export default function Navbar() {
   const navigate = useNavigate();
   const [username, setUsername] = useState(null);
-  useEffect(() => {
-    fetch("http://localhost:3000/admin/me", {
-      method: "GET",
+
+  async function init() {
+    const token = localStorage.getItem("token");
+    const res = await axios({
+      method: "get", //default
+      url: "http://localhost:3000/admin/me",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: `Bearer ${token}`,
       },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data.username) {
-          setUsername(data.username);
-        }
-      });
+    });
+    if (res.data.username) {
+      setUsername(res.data.username);
+    }
+  }
+
+  useEffect(() => {
+    init();
   }, []);
 
   if (username) {
