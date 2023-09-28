@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import axios from "axios";
+import { useSetRecoilState } from "recoil";
+import { adminState } from "../store/atoms/admin";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const setAdmin = useSetRecoilState(adminState);
 
   return (
     <div
@@ -67,13 +72,17 @@ export default function Signup() {
                 const res = await axios({
                   method: "post",
                   url: "http://localhost:3000/admin/signup",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
+                  headers: {},
                   data: { username, password },
                 });
-                console.log(res.data);
+                if (res.data) {
+                  localStorage.setItem("token", res.data.token);
+                  // window.location = "/";
+                  setAdmin({ isLoading: false, username });
+                  navigate("/courses");
+                }
               } catch (error) {
+                alert(error.response.data.message);
                 console.log(error.response.data);
               }
             }}

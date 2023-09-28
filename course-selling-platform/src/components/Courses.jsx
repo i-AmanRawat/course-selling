@@ -2,28 +2,37 @@ import { Box, Typography, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Loading } from "./Loading";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
 
   async function init() {
     const token = localStorage.getItem("token");
-    const res = await axios({
-      method: "get",
-      url: "http://localhost:3000/admin/courses/",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.data) {
-      setCourses(res.data.courses);
+    try {
+      const res = await axios({
+        method: "get",
+        url: "http://localhost:3000/admin/courses",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.data) {
+        setCourses(res.data.courses);
+      }
+    } catch (error) {
+      console.log(error);
+      console.log(error.response.data);
     }
   }
 
   useEffect(() => {
     init();
   }, []);
+
+  if (!courses) {
+    return <Loading />;
+  }
 
   return (
     <Box

@@ -86,7 +86,6 @@ export default function AddCourse() {
               method: "post",
               url: "http://localhost:3000/admin/courses",
               headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
               data: {

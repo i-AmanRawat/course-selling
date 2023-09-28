@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import axios from "axios";
+import { useSetRecoilState } from "recoil";
+import { adminState } from "../store/atoms/admin";
+import { useNavigate } from "react-router-dom";
 
 export default function Signin() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const setAdmin = useSetRecoilState(adminState);
 
   return (
     <div
@@ -70,13 +75,13 @@ export default function Signin() {
                 headers: {
                   username,
                   password,
-                  "Content-Type": "application/json",
                 },
               });
               if (res.data) {
-                console.log(res.data);
                 localStorage.setItem("token", res.data.token);
-                window.location = "/";
+                // window.location = "/";
+                setAdmin({ isLoading: false, username });
+                navigate("/courses");
               }
             }}
           >

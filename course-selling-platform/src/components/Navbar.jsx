@@ -1,30 +1,23 @@
-import axios from "axios";
 import { Typography, Button } from "@mui/material";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSetRecoilState, useRecoilValue } from "recoil";
+import { adminEmail, isAdminLoading } from "../store/selectors/admin";
+import { adminState } from "../store/atoms/admin";
+import { Loading } from "./Loading";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState(null);
+  const username = useRecoilValue(adminEmail);
+  const adminLoading = useRecoilValue(isAdminLoading);
+  const setAdmin = useSetRecoilState(adminState);
 
-  async function init() {
-    const token = localStorage.getItem("token");
-    const res = await axios({
-      method: "get", //default
-      url: "http://localhost:3000/admin/me",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.data.username) {
-      setUsername(res.data.username);
-    }
+  if (adminLoading) {
+    return (
+      <>
+        <Loading />
+      </>
+    );
   }
-
-  useEffect(() => {
-    init();
-  }, []);
 
   if (username) {
     return (
@@ -72,7 +65,12 @@ export default function Navbar() {
                 variant={"contained"}
                 onClick={() => {
                   localStorage.setItem("token", null);
-                  window.location = "/";
+                  // window.location = "/";
+                  setAdmin({
+                    isLoading: false,
+                    username: null,
+                  });
+                  navigate("/signup");
                 }}
               >
                 Logout

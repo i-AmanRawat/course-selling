@@ -1,7 +1,18 @@
 import { Box, Typography } from "@mui/material";
+import { useRecoilValue } from "recoil";
+import {
+  courseTitle,
+  courseDescription,
+  coursePrice,
+  courseImageLink,
+} from "../store/selectors/course";
 
-export default function CourseCard({ course }) {
-  const { title, description, price, imageLink } = course;
+export default function CourseCard() {
+  const title = useRecoilValue(courseTitle);
+  const description = useRecoilValue(courseDescription);
+  const price = useRecoilValue(coursePrice);
+  const imageLink = useRecoilValue(courseImageLink);
+
   return (
     <Box
       style={{
