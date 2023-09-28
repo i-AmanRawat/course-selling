@@ -1,28 +1,39 @@
-import { Box, Grid, Typography } from "@mui/material";
-import { useState } from "react";
-import { useEffect } from "react";
+import axios from "axios";
+import { useSetRecoilState, useRecoilValue } from "recoil";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { Grid, Typography } from "@mui/material";
 
+import { Loading } from "./Loading";
 import UpdateCard from "./UpdateCard";
 import CourseCard from "./CourseCard";
-import axios from "axios";
+import { courseState } from "../store/atoms/course";
+import { courseTitle, isCourseLoading } from "../store/selectors/course";
 
 export default function Course() {
   const { courseId } = useParams();
-  const [course, setCourse] = useState(null);
+  // const [course, setCourse] = useState(null);
+  const setCourse = useSetRecoilState(courseState);
+  const courseLoading = useRecoilValue(isCourseLoading);
 
   async function init() {
     const token = localStorage.getItem("token");
-    const res = await axios({
-      method: "get",
-      url: "http://localhost:3000/admin/course/" + courseId,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.data) {
-      setCourse(res.data.course);
+    try {
+      const res = await axios({
+        method: "get",
+        url: "http://localhost:3000/admin/course/" + courseId,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.data) {
+        setCourse({ isLoading: false, course: res.data.course });
+      } else {
+        setCourse({ isLoading: false, course: null });
+      }
+    } catch (error) {
+      setCourse({ isLoading: false, course: null });
     }
   }
 
@@ -30,25 +41,27 @@ export default function Course() {
     init();
   }, []);
 
-  if (!course) {
-    return <Box>Loading</Box>;
+  if (courseLoading) {
+    return <Loading />;
   }
   return (
     <div>
-      <GrayTopper title={course.title} />
+      <GrayTopper />
       <Grid container style={{ marginLeft: 50, marginRight: 50 }}>
         <Grid item lg={4} md={12} sm={12}>
-          <CourseCard course={course} />
+          <CourseCard />
         </Grid>
         <Grid item lg={8} md={12} sm={12}>
-          <UpdateCard course={course} setCourse={setCourse} />
+          <UpdateCard />
         </Grid>
       </Grid>
     </div>
   );
 }
 
-function GrayTopper({ title }) {
+function GrayTopper() {
+  const title = useRecoilValue(courseTitle);
+
   return (
     <div
       style={{

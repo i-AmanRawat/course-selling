@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Typography, TextField, Card, Button } from "@mui/material";
 import axios from "axios";
+import { useRecoilState } from "recoil";
+import { courseState } from "../store/atoms/course";
 
-export default function UpdateCard({ course, setCourse }) {
-  const [title, setTitle] = useState(course.title);
-  const [description, setDescription] = useState(course.description);
-  const [image, setImage] = useState(course.imageLink);
-  const [price, setPrice] = useState(course.price);
+export default function UpdateCard() {
+  const [courseDetail, setCourse] = useRecoilState(courseState);
+
+  const [title, setTitle] = useState(courseDetail.course.title);
+  const [description, setDescription] = useState(
+    courseDetail.course.description
+  );
+  const [image, setImage] = useState(courseDetail.course.imageLink);
+  const [price, setPrice] = useState(courseDetail.course.price);
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -62,11 +68,12 @@ export default function UpdateCard({ course, setCourse }) {
             variant="contained"
             onClick={async () => {
               const token = localStorage.getItem("token");
-              axios({
-                url: "http://localhost:3000/admin/courses/" + course._id,
+              await axios({
+                url:
+                  "http://localhost:3000/admin/courses/" +
+                  courseDetail.course._id,
                 method: "put",
                 headers: {
-                  "Content-type": "application/json",
                   Authorization: `Bearer ${token}`,
                 },
                 data: {
@@ -79,13 +86,13 @@ export default function UpdateCard({ course, setCourse }) {
               });
 
               let updatedCourse = {
-                _id: course._id,
+                _id: courseDetail.course._id,
                 title: title,
                 description: description,
                 imageLink: image,
                 price,
               };
-              setCourse(updatedCourse);
+              setCourse({ isLoading: false, course: updatedCourse });
             }}
           >
             Update course
